@@ -7,11 +7,14 @@ from sklearn.manifold import TSNE
 from sklearn.decomposition import FastICA
 from sklearn.manifold import MDS
 from sklearn.cluster import KMeans
-from sklearn.cluster import AgglomerativeClustering
+import skfuzzy as fuzz
 from sklearn.mixture import GaussianMixture
+from sklearn.cluster import AgglomerativeClustering
+from scipy.cluster.hierarchy import dendrogram, linkage
 from sklearn.cluster import SpectralClustering
 from sklearn.metrics import silhouette_score
-import skfuzzy as fuzz
+from typing import Callable
+import seaborn as sns
 
 
 class Data:
@@ -19,8 +22,7 @@ class Data:
         self.name = path.split(sep='/')[-1][:-4]
         self.data = pd.read_csv(path, delimiter=";").sample(n=10000, random_state=100)
         self.reduced_data = None
-        self.colors = ['b', 'g', 'r', 'c', 'm', '#fdff03', '#055803',
-                       '#a6fc00', '#9d70d1', '#ff703b', '#3a70d8', '#ff70b5']
+        self.colors = ['b']
 
     def preprocess(self):
         if self.name == 'data #1':
@@ -72,6 +74,7 @@ class Data:
         labels = clustering[0]
         n_clusters = clustering[1]
         title = clustering[2]
+        self.colors = sns.color_palette('bright', n_colors=n_clusters).as_hex()
         for label in range(n_clusters):
             plt.scatter(self.reduced_data.values[labels == label, 0], self.reduced_data.values[labels == label, 1],
                         s=40, c=self.cluster_color(label))
@@ -83,9 +86,34 @@ class Data:
 
     # ------------- optimization ------------- #
 
-    # def optimize_method(self, method: ):
+    def optimize_method(self, method_name: str, method: Callable[[int], list], max_clusters: int,
+                        label_fs=10, ticks_fs=8):
+        print('optimizing', method_name + '...')
+        silhouette = []
+        for n_clusters in range(2, max_clusters + 1):
+            labels = method(n_clusters)[0]
+            silhouette.append((n_clusters, silhouette_score(X=self.data.values.tolist(), labels=labels, sample_size=3000
+                                                            , random_state=100)))
+        print('done')
+        # plot:
+        title = method_name + ' Silhouette Score'
+        silhouette_df = pd.DataFrame(data=silhouette, columns=['number of clusters', 'Silhouette Score'])
+        ax = silhouette_df.plot(x='number of clusters', y='Silhouette Score')
+        ax.set_title(label=title)
+        ax.set_xlabel('number of clusters', fontsize=label_fs)
+        ax.set_ylabel('Silhouette Score', fontsize=label_fs)
+        ax.set_xticks(range(2, max_clusters, 2))
+        for tick in ax.xaxis.get_major_ticks() + ax.yaxis.get_major_ticks():
+            tick.label.set_fontsize(ticks_fs)
+        plt.show()
 
-    # ------------- methods ------------- #
+    def plot_dendrogram(self, horizontal_cut: float = 3):
+        plt.title("Dendrogram")
+        dendrogram(linkage(self.data, method='ward'))
+        # plt.axhline(y=horizontal_cut, color='r', linestyle='--')
+        plt.show()
+
+        # ------------- methods ------------- #
 
     def k_means(self, n_clusters: int):
         print('performing k means clustering with', n_clusters, 'clusters...', end=' ')
@@ -100,10 +128,11 @@ class Data:
         print('done')
         return np.argmax(u, axis=0), n_clusters, 'FCM with ' + str(n_clusters) + ' clusters'
 
-    def gmm(self, n_clusters: int):
-        print('performing gmm clustering with', n_clusters, 'clusters...')
+    def gmm(self, n_clusters: int, verbose=0):
+        end = ' ' if verbose == 0 else '\n'
+        print('performing gmm clustering with', n_clusters, 'clusters...', end=end)
         gmm = GaussianMixture(n_components=n_clusters, covariance_type='full', init_params='kmeans'
-                              , warm_start=False, n_init=5, random_state=100, verbose=2)
+                              , warm_start=False, n_init=5, random_state=100, verbose=verbose)
         gmm.fit(self.data)
         print('done')
         return gmm.predict(self.data), n_clusters, 'GMM with ' + str(n_clusters) + ' clusters'
