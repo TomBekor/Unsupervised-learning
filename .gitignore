@@ -1,1 +1,4 @@
 unsupervised_middle_project/.idea
+unsupervised_middle_project/__pycache__/
+unsupervised_middle_project/PCA_reduced_data.csv
+unsupervised_middle_project/TSNE_reduced_data.csv
