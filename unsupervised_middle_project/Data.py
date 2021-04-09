@@ -1,59 +1,61 @@
+from typing import Callable
 import pandas as pd
 import numpy as np
+import seaborn as sns
 from Clustering import *
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from sklearn.decomposition import FastICA
-from sklearn.manifold import MDS
 from sklearn.cluster import KMeans
-import skfuzzy as fuzz
-from sklearn.mixture import GaussianMixture
-from sklearn.cluster import AgglomerativeClustering
-from scipy.cluster.hierarchy import dendrogram, linkage
 from sklearn.cluster import SpectralClustering
 from sklearn.cluster import DBSCAN
+from sklearn.cluster import AgglomerativeClustering
+from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score
 from sklearn.metrics import fowlkes_mallows_score
-from typing import Callable
-import seaborn as sns
+import skfuzzy as fuzz
+import preprocess
 
 
 class Data:
-    def __init__(self, path: str, target, sample: int = 10000):
-        self.name = path.split(sep='/')[-1][:-4]
-        self.data = pd.read_csv(path, delimiter=";").sample(n=sample, random_state=100)
-        self.target = self.data[target]
-        self.data = self.data.drop(target, axis=1)
+    def __init__(self):
+        self.name = None
+        self.data = None
+        self.target = None
+        self.data = None
         self.reduced_data = None
         self.visualized_data = None
         self.colors = ['b']
         self.palette = 'bright'
 
+    def targets(self):
+        return self.target.columns.tolist()
+
+    def get_reduced_data(self):
+        return self.reduced_data
+
     def set_palette_color(self, palette: str):
         self.palette = palette
 
-    def preprocess(self):
+    def preprocess(self, path: str, sample: int):
+        self.name = path.split(sep='/')[-1][:-4]
         if self.name == 'data #1':
             # TODO first data set preprocess
             pass
-        elif self.name == 'data #2':
-            # TODO second data set preprocess
-            pass
-        elif self.name == 'e-shop clothing 2008':
-            self.data = self.data.drop(['year', 'page 2 (clothing model)'], axis=1)
+        elif self.name == 'diabetic_data':
+            self.data, self.target = preprocess.data2(path, sample)
 
-    def normalization(self):
-        scaler = StandardScaler()
-        self.data = pd.DataFrame(data=scaler.fit_transform(self.data), columns=[self.data.columns])
+        elif self.name == 'e-shop clothing 2008':
+            self.data, self.target = preprocess.data3(path, sample)
 
     def dimension_reduction(self, method: str, n_components: float, visualize: bool,
                             read_from_csv: bool = False, write_to_csv: bool = False):
         if visualize:
-            file_name = method + '_' + 'visualized' + '_data.csv'
+            file_name = self.name + '/DataCsv/' + method + '_' + 'visualized' + '_data.csv'
         else:
-            file_name = method + '_' + 'reduced' + '_data.csv'
+            file_name = self.name + '/DataCsv/' + method + '_' + 'reduced' + '_data.csv'
         if read_from_csv:
             result = pd.read_csv(file_name)
         else:
@@ -63,13 +65,13 @@ class Data:
                 principal_components = pca.fit_transform(self.data)
                 result = pd.DataFrame(data=principal_components)
                 print('done')
-                print(pca.n_components_, 'pca components, variance ratio:')
+                print('from', len(self.data.columns), 'dimensions to', pca.n_components_, 'pca components, variance ratio:')
                 print(pca.explained_variance_ratio_)
                 print('total variance:', str(int((sum(pca.explained_variance_ratio_) * 100))) + '%')
             elif method == 'TSNE':
                 print('Starting dimension reduction using TSNE...', end=' ')
                 tsne = TSNE(n_components=n_components)
-                embedded_data = tsne.fit_transform(self.data)
+                embedded_data = tsne.fit_transform(self.reduced_data)
                 result = pd.DataFrame(data=embedded_data, columns=['dim 1', 'dim 2'])
                 print('done')
             else:
@@ -84,7 +86,7 @@ class Data:
 
     # -------------------------------- clustering -------------------------------- #
 
-    def target_plot(self, label:str):
+    def target_plot(self, label: str):
         labels = self.target[label].values
         n_labels = max(pd.unique(labels).max(), len(pd.unique(labels))) + 1
         return Clustering(labels=labels, n_clusters=n_labels, title=label.capitalize() + ' True Labels', palette=self.palette)
@@ -127,14 +129,19 @@ class Data:
             clustering = method(n_clusters)
             labels = clustering.get_labels()
             clusters.append(n_clusters)
-            silhouette.append(silhouette_score(X=self.reduced_data.values.tolist(), labels=labels, sample_size=3000
-                                               , random_state=100))
+
+            # calculate silhouette score with random_state == 100 and 5000 samples:
+            silhouette.append(silhouette_score(X=self.reduced_data.values.tolist(), labels=labels,
+                                               sample_size=5000, random_state=100))
+
+            # calculate fowlkes_mallows_score:
             for cat in self.target.columns:
                 true_labels = self.target[cat].values
                 fms[cat].append(fowlkes_mallows_score(labels_true=true_labels, labels_pred=labels))
+
+            # calculate wss:
             if method_name == 'K-Means':
                 wss.append(clustering.get_inertia())
-        print('done')
 
         # plot optimization:
         def plot_opt(y, opt_title: str, y_label: str):
@@ -164,6 +171,8 @@ class Data:
             if method_name == 'K-Means':
                 title = method_name + ' WSS'
                 plot_opt(y=wss, opt_title=title, y_label='WSS Score')
+
+        print('done')
 
     def plot_dendrogram(self, horizontal_cut: float = 3):
         plt.title("Dendrogram")
@@ -246,6 +255,31 @@ class Data:
                           fowlkes_mallows=fowlkes_mallows)
 
 
+def apply_method(method: Callable[[int], Clustering], n_clusters: list):
+    clustering = []
+    for n in n_clusters:
+        clustering.append(method(n))
+    fowlkes_mallows_plot(clustering, n_clusters, x_title='number of clusters')
+    return clustering
+
+
+def fowlkes_mallows_plot(clustering, labels, x_title, x_rotation=0):
+    title = clustering[0].get_title().split(' ')[0] + ' clustering Fowlkes Mallows Scores'
+    all_fowlkes_mallows = {}
+    for clust in clustering:
+        clust_fowlkes_mallows = clust.get_fowlkes_mallows()
+        for cat in clust_fowlkes_mallows:
+            if cat not in all_fowlkes_mallows:
+                all_fowlkes_mallows[cat] = [clust_fowlkes_mallows[cat]]
+            else:
+                all_fowlkes_mallows[cat].append(clust_fowlkes_mallows[cat])
+    fowlkes_mallows = pd.DataFrame(all_fowlkes_mallows)
+    ax = fowlkes_mallows.plot.bar(title=title)
+    ax.set_xlabel(x_title)
+    ax.set_ylabel('Fowlkes Mallows Score')
+    ax.set_xticklabels(labels, rotation=x_rotation)
+
+
 def apply_dbscan(method: Callable[[float, int], Clustering], dbscan_params):
     dbscans = []
     for epsilon in dbscan_params[0]:
@@ -275,28 +309,3 @@ def dbscan_fowlkes_mallows(dbscans, dbscan_params):
         fowlkes_mallows = pd.concat([fowlkes_mallows, pd.DataFrame(dbscan_params[0], columns=['min_samples'])], axis=1)
         fowlkes_mallows = fowlkes_mallows.set_index('min_samples')
         sns.heatmap(fowlkes_mallows, cmap='rocket_r')
-
-
-def apply_method(method: Callable[[int], Clustering], n_clusters: list):
-    clustering = []
-    for n in n_clusters:
-        clustering.append(method(n))
-    fowlkes_mallows_plot(clustering, n_clusters, x_title='number of clusters')
-    return clustering
-
-
-def fowlkes_mallows_plot(clustering, labels, x_title, x_rotation=0):
-    title = clustering[0].get_title().split(' ')[0] + ' clustering Fowlkes Mallows Scores'
-    all_fowlkes_mallows = {}
-    for clust in clustering:
-        clust_fowlkes_mallows = clust.get_fowlkes_mallows()
-        for cat in clust_fowlkes_mallows:
-            if cat not in all_fowlkes_mallows:
-                all_fowlkes_mallows[cat] = [clust_fowlkes_mallows[cat]]
-            else:
-                all_fowlkes_mallows[cat].append(clust_fowlkes_mallows[cat])
-    fowlkes_mallows = pd.DataFrame(all_fowlkes_mallows)
-    ax = fowlkes_mallows.plot.bar(title=title)
-    ax.set_xlabel(x_title)
-    ax.set_ylabel('Fowlkes Mallows Score')
-    ax.set_xticklabels(labels, rotation=x_rotation)

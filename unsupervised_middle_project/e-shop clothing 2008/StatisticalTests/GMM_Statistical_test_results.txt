@@ -1,0 +1,19 @@
+GMM Statistical Test Results
+
+the top 2 optimal number of clusters are: 2, 3
+
+times success: 939
+times searched: 1000
+
+z-stat: 5.153, p-value: 0.000
+
+Reject the null hypothesis - the alternative hypothesis is true.
+More than 90.0% of the silhouette score samples found the same top 2 number of clusters.
+
+full results:
+2     700
+3     239
+5      56
+9       3
+12      2
+Name: 0, dtype: int64
