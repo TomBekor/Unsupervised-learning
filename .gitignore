@@ -1,7 +1,7 @@
-unsupervised_middle_project/.idea
-unsupervised_middle_project/__pycache__/
-unsupervised_middle_project/PCA_reduced_data.csv
-unsupervised_middle_project/TSNE_reduced_data.csv
+.idea
+__pycache__/
+PCA_reduced_data.csv
+TSNE_reduced_data.csv
 .ipynb_checkpoints
 3D plot.ipynb
 clean work.ipynb
