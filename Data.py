@@ -16,6 +16,7 @@ from sklearn.metrics import silhouette_score
 from sklearn.metrics import fowlkes_mallows_score
 # import skfuzzy as fuzz
 import preprocess
+import os
 
 
 class Data:
@@ -38,19 +39,18 @@ class Data:
     def set_palette_color(self, palette: str):
         self.palette = palette
 
-    def preprocess(self, path: str, sample: int):
-        self.name = path.split(sep='/')[-1][:-4]
-        if self.name == 'data #1':
-            # TODO first data set preprocess
-            pass
+    def preprocess(self, name: str, path: str, sample: int):
+        self.name = name
+        if self.name == 'HandPostures':
+            self.data, self.target = preprocess.hand_postures_preprocess(path, sample)
         elif self.name == 'diabetic_data':
-            self.data, self.target = preprocess.data2(path, sample)
-
-        elif self.name == 'e-shop clothing 2008':
-            self.data, self.target = preprocess.data3(path, sample)
+            # TODO second data.
+            pass
 
     def dimension_reduction(self, method: str, n_components: float, visualize: bool,
                             read_from_csv: bool = False, write_to_csv: bool = False):
+        if not os.path.exists(self.name + '/DataCsv'):
+            os.mkdir(self.name + '/DataCsv')
         if visualize:
             file_name = self.name + '/DataCsv/' + method + '_' + 'visualized' + '_data.csv'
         else:
