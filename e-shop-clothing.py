@@ -8,7 +8,7 @@ def main():
     sample = 15000
     dim_reduction_to_visualize = 'TSNE'
     read_from_csv = True
-
+ 
     data = Data()
     data.preprocess(path=path, sample=sample)
 

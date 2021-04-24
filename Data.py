@@ -14,7 +14,7 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score
 from sklearn.metrics import fowlkes_mallows_score
-import skfuzzy as fuzz
+# import skfuzzy as fuzz
 import preprocess
 
 
@@ -195,15 +195,16 @@ class Data:
         return Clustering(labels=labels, n_clusters=n_clusters, title='K-Means with ' + str(n_clusters) + ' clusters',
                           inertia=kmeans.inertia_, palette=self.palette, fowlkes_mallows=fowlkes_mallows)
 
-    def fcm(self, n_clusters: int) -> Clustering:
-        print('performing fcm clustering with', n_clusters, 'clusters...', end=' ')
-        cntr, u, u0, d, jm, p, fpc = fuzz.cluster.cmeans(self.reduced_data.T.values, n_clusters, 2, error=0.005, maxiter=1000,
-                                                         seed=100)
-        labels = np.argmax(u, axis=0)
-        fowlkes_mallows = self.target_fowlkes_mallows(labels)
-        print('done')
-        return Clustering(labels=labels, n_clusters=n_clusters, title='FCM with ' + str(n_clusters) + ' clusters',
-                          palette=self.palette, fowlkes_mallows=fowlkes_mallows)
+    # TODO make fuzzy works, don't forget to import
+    # def fcm(self, n_clusters: int) -> Clustering:
+    #     print('performing fcm clustering with', n_clusters, 'clusters...', end=' ')
+    #     cntr, u, u0, d, jm, p, fpc = fuzz.cluster.cmeans(self.reduced_data.T.values, n_clusters, 2, error=0.005, maxiter=1000,
+    #                                                      seed=100)
+    #     labels = np.argmax(u, axis=0)
+    #     fowlkes_mallows = self.target_fowlkes_mallows(labels)
+    #     print('done')
+    #     return Clustering(labels=labels, n_clusters=n_clusters, title='FCM with ' + str(n_clusters) + ' clusters',
+    #                       palette=self.palette, fowlkes_mallows=fowlkes_mallows)
 
     def gmm(self, n_clusters: int, verbose=0) -> Clustering:
         end = ' ' if verbose == 0 else '\n'
