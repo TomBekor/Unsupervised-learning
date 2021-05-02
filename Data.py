@@ -14,7 +14,7 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score
 from sklearn.metrics import fowlkes_mallows_score
-# import skfuzzy as fuzz
+import skfuzzy as fuzz
 import preprocess
 import os
 
@@ -24,9 +24,11 @@ class Data:
         self.name = None
         self.data = None
         self.target = None
-        self.data = None
         self.reduced_data = None
         self.visualized_data = None
+        self.data_anomalies = None
+        self.target_anomalies = None
+        self.data_dir = None
         self.colors = ['b']
         self.palette = 'bright'
 
@@ -39,22 +41,25 @@ class Data:
     def set_palette_color(self, palette: str):
         self.palette = palette
 
-    def preprocess(self, name: str, path: str, sample: int):
+    def preprocess(self, name: str, path: str, sample: int, anomaly_detection: bool, data_dir: str):
         self.name = name
         if self.name == 'HandPostures':
-            self.data, self.target = preprocess.hand_postures_preprocess(path, sample)
-        elif self.name == 'diabetic_data':
-            # TODO second data.
-            pass
+            self.data, self.target, self.data_anomalies, self.target_anomalies = \
+                preprocess.hand_postures_preprocess(path, sample, anomaly_detection)
+        elif self.name == 'PulsarStars':
+            self.data, self.target, self.data_anomalies, self.target_anomalies = \
+                preprocess.pulsar_stars_preprocess(path, sample, anomaly_detection)
+        self.data_dir = data_dir
 
     def dimension_reduction(self, method: str, n_components: float, visualize: bool,
                             read_from_csv: bool = False, write_to_csv: bool = False):
-        if not os.path.exists(self.name + '/DataCsv'):
-            os.mkdir(self.name + '/DataCsv')
+        csv_dir = self.data_dir + 'DataCsv/'
+        if not os.path.exists(csv_dir):
+            os.makedirs(csv_dir, exist_ok=True)
         if visualize:
-            file_name = self.name + '/DataCsv/' + method + '_' + 'visualized' + '_data.csv'
+            file_name = csv_dir + method + '_' + 'visualized' + '_data.csv'
         else:
-            file_name = self.name + '/DataCsv/' + method + '_' + 'reduced' + '_data.csv'
+            file_name = csv_dir + method + '_' + 'reduced' + '_data.csv'
         if read_from_csv:
             result = pd.read_csv(file_name)
         else:
@@ -97,14 +102,23 @@ class Data:
             return 'k'
         return self.colors[int(label) % len(self.colors)]
 
+    def unique(self, list1):
+        x = np.array(list1)
+        return np.unique(x)
+
     def plot_clusters(self, clustering: Clustering, title_fs=14, label_fs=10, ticks_fs=8):
         plt.figure()
         labels = clustering.get_labels()
         n_clusters = clustering.get_n_clusters()
         title = clustering.get_title()
         self.colors = sns.color_palette(palette=clustering.get_palette(), n_colors=n_clusters).as_hex()
+
         plt.scatter(self.visualized_data.values[:, 0], self.visualized_data.values[:, 1],
-                    s=40, c=[self.cluster_color(label) for label in labels])
+                    s=30, c=[self.cluster_color(label) for label in labels], alpha=0.5)
+
+        # plt.scatter(self.visualized_data.values[:, 0], self.visualized_data.values[:, 1],
+        #             s=30, hue=labels, alpha=0.5)
+
         clusters_ax = plt.gca()
         clusters_ax.set_title(title, fontsize=title_fs)
         clusters_ax.set_xlabel('dim1', fontsize=label_fs)
@@ -195,16 +209,15 @@ class Data:
         return Clustering(labels=labels, n_clusters=n_clusters, title='K-Means with ' + str(n_clusters) + ' clusters',
                           inertia=kmeans.inertia_, palette=self.palette, fowlkes_mallows=fowlkes_mallows)
 
-    # TODO make fuzzy works, don't forget to import
-    # def fcm(self, n_clusters: int) -> Clustering:
-    #     print('performing fcm clustering with', n_clusters, 'clusters...', end=' ')
-    #     cntr, u, u0, d, jm, p, fpc = fuzz.cluster.cmeans(self.reduced_data.T.values, n_clusters, 2, error=0.005, maxiter=1000,
-    #                                                      seed=100)
-    #     labels = np.argmax(u, axis=0)
-    #     fowlkes_mallows = self.target_fowlkes_mallows(labels)
-    #     print('done')
-    #     return Clustering(labels=labels, n_clusters=n_clusters, title='FCM with ' + str(n_clusters) + ' clusters',
-    #                       palette=self.palette, fowlkes_mallows=fowlkes_mallows)
+    def fcm(self, n_clusters: int) -> Clustering:
+        print('performing fcm clustering with', n_clusters, 'clusters...', end=' ')
+        cntr, u, u0, d, jm, p, fpc = fuzz.cluster.cmeans(self.reduced_data.T.values, n_clusters, 2, error=0.005, maxiter=1000,
+                                                         seed=100)
+        labels = np.argmax(u, axis=0)
+        fowlkes_mallows = self.target_fowlkes_mallows(labels)
+        print('done')
+        return Clustering(labels=labels, n_clusters=n_clusters, title='FCM with ' + str(n_clusters) + ' clusters',
+                          palette=self.palette, fowlkes_mallows=fowlkes_mallows)
 
     def gmm(self, n_clusters: int, verbose=0) -> Clustering:
         end = ' ' if verbose == 0 else '\n'

@@ -1,5 +1,6 @@
 .idea
 __pycache__/
+.DS_Store
 venv
 PCA_reduced_data.csv
 TSNE_reduced_data.csv
@@ -13,3 +14,4 @@ e_shop_clothing.ipynb
 latex/
 online_shoppers_intention/
 e-shop data and description/
+_old/

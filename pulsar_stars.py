@@ -4,17 +4,17 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    subject_path = 'HandPostures/'
-    data_path = subject_path + "DataSet/allUsers.lcl.csv"
+    subject_path = 'PulsarStars/'
+    data_path = subject_path + "DataSet/HTRU_2.csv"
     sample = 15000
-    dim_reduction_to_visualize = 'TSNE'
+    dim_reduction_to_visualize = 'PCA'
     read_from_csv = True
     anomaly_detection = False
 
     data_dir = subject_path + 'with_anomaly_detection/' if anomaly_detection else subject_path + 'without_anomaly_detection/'
 
     data = Data()
-    data.preprocess(name='HandPostures', path=data_path, sample=sample, anomaly_detection=anomaly_detection, data_dir=data_dir)
+    data.preprocess(name='PulsarStars', path=data_path, sample=sample, anomaly_detection=anomaly_detection, data_dir=data_dir)
 
     '''
     # When running for the first time, set read_from_csv to False.
@@ -68,30 +68,30 @@ def main():
     if not anomaly_detection:  # without anomaly detection
         km_n_clusters = [1, 2]
         fcm_n_clusters = [1, 2]
-        gmm_n_clusters = [1, 3, 6]
-        hir_n_clusters = [1, 2, 3]
+        gmm_n_clusters = [1, 2]
+        hir_n_clusters = [1, 2]
         spec_n_clusters = [1, 2]
         dbscan_params = [np.linspace(0.5, 5, 10),  # epsilons.
                          np.linspace(2, 11, 10)]  # min samples - have to be integers.
 
     else:  # with anomaly detection
-        km_n_clusters = [1, 2]
-        fcm_n_clusters = [1, 2]
+        km_n_clusters = [1, 3]
+        fcm_n_clusters = [1, 2, 3]
         gmm_n_clusters = [1, 3]
-        hir_n_clusters = [1, 2]
-        spec_n_clusters = [1, 2]
+        hir_n_clusters = [1, 3]
+        spec_n_clusters = [1, 3]
         dbscan_params = [np.linspace(0.5, 5, 10),  # epsilons.
                          np.linspace(2, 11, 10)]  # min samples - have to be integers.
 
     # --------------- Fowlkes Mallows scores on the optimized methods with Silhouette score --------------- #
 
     data.set_palette_color('viridis')
-    apply_method(data.k_means, km_n_clusters)
-    apply_method(data.fcm, fcm_n_clusters)
-    apply_method(data.gmm, gmm_n_clusters)
-    apply_method(data.hierarchical, hir_n_clusters)
-    apply_method(data.spectral, spec_n_clusters)
-    # # apply_dbscan(data.dbscan, dbscan_params)
+    # apply_method(data.k_means, km_n_clusters)
+    # apply_method(data.fcm, fcm_n_clusters)
+    # apply_method(data.gmm, gmm_n_clusters)
+    # apply_method(data.hierarchical, hir_n_clusters)
+    # apply_method(data.spectral, spec_n_clusters)
+    # apply_dbscan(data.dbscan, dbscan_params)
 
     # --------------- True labels plot --------------- #
 
@@ -115,18 +115,18 @@ def main():
     if not anomaly_detection:  # without anomaly detection.
         optimized_km = data.k_means(n_clusters=2)
         optimized_fcm = data.fcm(n_clusters=2)
-        optimized_gmm = data.gmm(n_clusters=4)
-        optimized_hir = data.hierarchical(n_clusters=3)
+        optimized_gmm = data.gmm(n_clusters=2)
+        optimized_hir = data.hierarchical(n_clusters=2)
         optimized_spec = data.spectral(n_clusters=2)
         # optimized_dbscan = data.dbscan(epsilon=70, min_samples=8)
         pass
 
     else:  # with anomaly detection.
-        optimized_km = data.k_means(n_clusters=2)
-        optimized_fcm = data.fcm(n_clusters=2)
-        optimized_gmm = data.gmm(n_clusters=4)
-        optimized_hir = data.hierarchical(n_clusters=3)
-        optimized_spec = data.spectral(n_clusters=2)
+        optimized_km = data.k_means(n_clusters=1)
+        optimized_fcm = data.fcm(n_clusters=1)
+        optimized_gmm = data.gmm(n_clusters=1)
+        optimized_hir = data.hierarchical(n_clusters=1)
+        optimized_spec = data.spectral(n_clusters=1)
         # optimized_dbscan = data.dbscan(epsilon=70, min_samples=8)
         pass
 

@@ -1,0 +1,62 @@
+FCM Statistical Test Results:
+
+The optimal number of clusters is: 2, with t-stat of: 14.898, and p-value of: 0.000.
+
+Testing history:
+
+Null-Hypothesis: clustering with 2 clusters have the same Silhouette score as clustering with 3 clusters.
+Alternative-Hypothesis: clustering with 2 clusters have greater Silhouette score than clustering with 3 clusters.
+Results: t-stat = 5.106, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 2 clusters have the same Silhouette score as clustering with 4 clusters.
+Alternative-Hypothesis: clustering with 2 clusters have greater Silhouette score than clustering with 4 clusters.
+Results: t-stat = 7.000, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 2 clusters have the same Silhouette score as clustering with 5 clusters.
+Alternative-Hypothesis: clustering with 2 clusters have greater Silhouette score than clustering with 5 clusters.
+Results: t-stat = 9.637, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 2 clusters have the same Silhouette score as clustering with 6 clusters.
+Alternative-Hypothesis: clustering with 2 clusters have greater Silhouette score than clustering with 6 clusters.
+Results: t-stat = 10.835, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 2 clusters have the same Silhouette score as clustering with 7 clusters.
+Alternative-Hypothesis: clustering with 2 clusters have greater Silhouette score than clustering with 7 clusters.
+Results: t-stat = 13.429, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 2 clusters have the same Silhouette score as clustering with 8 clusters.
+Alternative-Hypothesis: clustering with 2 clusters have greater Silhouette score than clustering with 8 clusters.
+Results: t-stat = 14.459, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 2 clusters have the same Silhouette score as clustering with 9 clusters.
+Alternative-Hypothesis: clustering with 2 clusters have greater Silhouette score than clustering with 9 clusters.
+Results: t-stat = 14.688, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 2 clusters have the same Silhouette score as clustering with 10 clusters.
+Alternative-Hypothesis: clustering with 2 clusters have greater Silhouette score than clustering with 10 clusters.
+Results: t-stat = 14.898, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+

@@ -1,0 +1,62 @@
+GMM Statistical Test Results:
+
+The optimal number of clusters is: 3, with t-stat of: 13.097, and p-value of: 0.000.
+
+Testing history:
+
+Null-Hypothesis: clustering with 2 clusters have the same Silhouette score as clustering with 3 clusters.
+Alternative-Hypothesis: clustering with 2 clusters have greater Silhouette score than clustering with 3 clusters.
+Results: t-stat = -13.097, p-value = 1.000.
+Failed to reject the Null-Hypothesis.
+
+
+
+Null-Hypothesis: clustering with 3 clusters have the same Silhouette score as clustering with 4 clusters.
+Alternative-Hypothesis: clustering with 3 clusters have greater Silhouette score than clustering with 4 clusters.
+Results: t-stat = 14.877, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 3 clusters have the same Silhouette score as clustering with 5 clusters.
+Alternative-Hypothesis: clustering with 3 clusters have greater Silhouette score than clustering with 5 clusters.
+Results: t-stat = 4.826, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 3 clusters have the same Silhouette score as clustering with 6 clusters.
+Alternative-Hypothesis: clustering with 3 clusters have greater Silhouette score than clustering with 6 clusters.
+Results: t-stat = 55.473, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 3 clusters have the same Silhouette score as clustering with 7 clusters.
+Alternative-Hypothesis: clustering with 3 clusters have greater Silhouette score than clustering with 7 clusters.
+Results: t-stat = 67.742, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 3 clusters have the same Silhouette score as clustering with 8 clusters.
+Alternative-Hypothesis: clustering with 3 clusters have greater Silhouette score than clustering with 8 clusters.
+Results: t-stat = 75.794, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 3 clusters have the same Silhouette score as clustering with 9 clusters.
+Alternative-Hypothesis: clustering with 3 clusters have greater Silhouette score than clustering with 9 clusters.
+Results: t-stat = 47.629, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
+Null-Hypothesis: clustering with 3 clusters have the same Silhouette score as clustering with 10 clusters.
+Alternative-Hypothesis: clustering with 3 clusters have greater Silhouette score than clustering with 10 clusters.
+Results: t-stat = 49.769, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+
