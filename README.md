@@ -1,7 +1,6 @@
 # Unsupervised Learning
-
+### May 2021
 ## Abstract
-
 In this paper we analyzed 5 different clustering methods which were applied on
 the Pulsar Stars and the Hand Postures data sets, displayed results, and analyzed
 the performance for each, in attempt to find the most suiting clustering method.
