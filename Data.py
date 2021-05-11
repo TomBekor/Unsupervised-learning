@@ -112,7 +112,7 @@ class Data:
                 print('Kullback-Leibler divergence after optimization: ' + str(tsne.kl_divergence_))
                 text.append('Kullback-Leibler divergence after optimization: ' + str(tsne.kl_divergence_))
             else:
-                # TODO ready for another dimension reduction.
+                # ready for another dimension reduction.
                 result = None
         if visualize:
             self.visualized_data = result
@@ -272,7 +272,6 @@ class Data:
                           palette=self.palette, fowlkes_mallows=fowlkes_mallows)
 
     def hierarchical(self, n_clusters: int, linkage: str = 'ward') -> Clustering:
-        # TODO amount of points to use - hierarchical
         print('performing hierarchical clustering with', n_clusters, 'clusters...', end=' ')
         hierarchical = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage)
         hierarchical.fit(self.reduced_data)
@@ -284,7 +283,6 @@ class Data:
                           palette=self.palette, fowlkes_mallows=fowlkes_mallows)
 
     def spectral(self, n_clusters: int) -> Clustering:
-        # TODO amount of points to use - spectral
         print('performing spectral clustering with', n_clusters, 'clusters...', end=' ')
         spectral = SpectralClustering(n_clusters=n_clusters, affinity='nearest_neighbors', n_neighbors=30,
                                       assign_labels='kmeans', n_init=5, random_state=100)

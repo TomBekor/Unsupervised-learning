@@ -7,7 +7,7 @@ import os
 import matplotlib.pyplot as plt
 
 
-# TODO: https://towardsdatascience.com/inferential-statistics-series-t-test-using-numpy-2718f8f9bf2f
+# https://towardsdatascience.com/inferential-statistics-series-t-test-using-numpy-2718f8f9bf2f
 
 class StatisticalTest:
     def __init__(self, method_name: str, data: Data, method: Callable[[int], Clustering],

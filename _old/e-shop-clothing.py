@@ -12,7 +12,6 @@ def main():
     data = Data()
     data.preprocess(path=path, sample=sample)
 
-    # TODO delete the read from csv and write to csv.
     data.dimension_reduction(method='PCA', n_components=0.95, visualize=False,
                              read_from_csv=read_from_csv, write_to_csv=not read_from_csv)
     data.dimension_reduction(method=dim_reduction_to_visualize, n_components=2, visualize=True,
