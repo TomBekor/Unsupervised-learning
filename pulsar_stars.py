@@ -62,12 +62,13 @@ def main():
         statistical_test.optimize_clusters_number()
         statistical_test.write_results(data_dir + 'StatisticalTests/')
 
-    if anomaly_detection:
-        anomaly_title = ' with anomaly detection'
-    else:
-        anomaly_title = ' without anomaly detection'
-    tests_title = name + anomaly_title
-    plot_statistical_tests(statistical_tests, tests_title, plots_dir, figsize=figsize, legend=False)
+    if perform_statistical_tests:
+        if anomaly_detection:
+            anomaly_title = ' with anomaly detection'
+        else:
+            anomaly_title = ' without anomaly detection'
+        tests_title = name + anomaly_title
+        plot_statistical_tests(statistical_tests, tests_title, plots_dir, figsize=figsize, legend=True)
 
     # --------------- Silhouette scores plots: --------------- #
 

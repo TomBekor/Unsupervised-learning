@@ -11,12 +11,12 @@ def main():
 
     dim_reduction_to_visualize = 'TSNE'
     read_from_csv = False
-    anomaly_detection = False
+    anomaly_detection = True
     figsize = (7, 5)
 
     perform_statistical_tests = False
     compute_fowlkes_mallows = False
-    perform_clustering = True
+    perform_clustering = False
 
     data_dir = subject_path + 'with_anomaly_detection/' if anomaly_detection else subject_path + 'without_anomaly_detection/'
     plots_dir = data_dir + 'Plots/'
@@ -62,12 +62,13 @@ def main():
         statistical_test.optimize_clusters_number()
         statistical_test.write_results(data_dir + 'StatisticalTests/')
 
-    if anomaly_detection:
-        anomaly_title = ' with anomaly detection'
-    else:
-        anomaly_title = ' without anomaly detection'
-    tests_title = name + anomaly_title
-    plot_statistical_tests(statistical_tests, tests_title, plots_dir, figsize=figsize, legend=False)
+    if perform_statistical_tests:
+        if anomaly_detection:
+            anomaly_title = ' with anomaly detection'
+        else:
+            anomaly_title = ' without anomaly detection'
+        tests_title = name + anomaly_title
+        plot_statistical_tests(statistical_tests, tests_title, plots_dir, figsize=figsize, legend=True)
 
     # --------------- Silhouette scores plots: --------------- #
 

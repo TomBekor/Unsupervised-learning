@@ -109,6 +109,8 @@ class Data:
                 embedded_data = tsne.fit_transform(self.reduced_data)
                 result = pd.DataFrame(data=embedded_data, columns=['dim 1', 'dim 2'])
                 print('done')
+                print('Kullback-Leibler divergence after optimization: ' + str(tsne.kl_divergence_))
+                text.append('Kullback-Leibler divergence after optimization: ' + str(tsne.kl_divergence_))
             else:
                 # TODO ready for another dimension reduction.
                 result = None
