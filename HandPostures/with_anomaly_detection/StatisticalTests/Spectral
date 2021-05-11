@@ -1,5 +1,23 @@
 Spectral Statistical Test Results:
 
+Null-Hypothesis: clustering with specific number of clusters have no affect, i.e. they all have the same Silhouette score.
+Alternative-Hypothesis: They all have different Silhouette score.
+Results: t-stat = 449.661, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+Silhouette means:
+2 clusters Silhouette Score: 0.131
+3 clusters Silhouette Score: 0.078
+4 clusters Silhouette Score: -0.01
+5 clusters Silhouette Score: -0.05
+6 clusters Silhouette Score: -0.06
+7 clusters Silhouette Score: 0.005
+8 clusters Silhouette Score: 0.007
+9 clusters Silhouette Score: -0.04
+10 clusters Silhouette Score: -0.02
+
+
 The optimal number of clusters is: 2, with t-stat of: 50.499, and p-value of: 0.000.
 
 Testing history:

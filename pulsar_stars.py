@@ -4,17 +4,26 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    subject_path = 'PulsarStars/'
+    name = 'Pulsar Stars'
+    subject_path = name.replace(' ', '') + '/'
     data_path = subject_path + "DataSet/HTRU_2.csv"
     sample = 15000
+
     dim_reduction_to_visualize = 'PCA'
-    read_from_csv = True
+    read_from_csv = False
     anomaly_detection = False
+    figsize = (7, 5)
+
+    perform_statistical_tests = False
+    compute_fowlkes_mallows = False
+    perform_clustering = True
 
     data_dir = subject_path + 'with_anomaly_detection/' if anomaly_detection else subject_path + 'without_anomaly_detection/'
+    plots_dir = data_dir + 'Plots/'
 
     data = Data()
-    data.preprocess(name='PulsarStars', path=data_path, sample=sample, anomaly_detection=anomaly_detection, data_dir=data_dir)
+    data.preprocess(name='PulsarStars', path=data_path, sample=sample, anomaly_detection=anomaly_detection,
+                    data_dir=data_dir, plots_dir=plots_dir, figsize=figsize)
 
     '''
     # When running for the first time, set read_from_csv to False.
@@ -38,20 +47,27 @@ def main():
     km_st = StatisticalTest('K-Means', data, data.k_means, significance, sample=1000, n_tests=50)
     fcm_st = StatisticalTest('FCM', data, data.fcm, significance, sample=1000, n_tests=50)
     gmm_st = StatisticalTest('GMM', data, data.gmm, significance, sample=1000, n_tests=50)
-    hir_st = StatisticalTest('Agglomerative Hierarchical Clustering', data, data.hierarchical, significance,
-                             sample=1000, n_tests=50)
+    hir_st = StatisticalTest('Agglomerative Hierarchical Clustering', data, data.hierarchical, significance, sample=1000, n_tests=50)
     spec_st = StatisticalTest('Spectral', data, data.spectral, significance, sample=1000, n_tests=50)
 
-    # statistical_tests.append(km_st)
-    # statistical_tests.append(fcm_st)
-    # statistical_tests.append(gmm_st)
-    # statistical_tests.append(hir_st)
-    # statistical_tests.append(spec_st)
+    if perform_statistical_tests:
+        statistical_tests.append(km_st)
+        statistical_tests.append(fcm_st)
+        statistical_tests.append(gmm_st)
+        statistical_tests.append(hir_st)
+        statistical_tests.append(spec_st)
 
     for statistical_test in statistical_tests:
         statistical_test.calc_silhouette_scores(max_clusters=10)
         statistical_test.optimize_clusters_number()
         statistical_test.write_results(data_dir + 'StatisticalTests/')
+
+    if anomaly_detection:
+        anomaly_title = ' with anomaly detection'
+    else:
+        anomaly_title = ' without anomaly detection'
+    tests_title = name + anomaly_title
+    plot_statistical_tests(statistical_tests, tests_title, plots_dir, figsize=figsize, legend=False)
 
     # --------------- Silhouette scores plots: --------------- #
 
@@ -66,39 +82,41 @@ def main():
     # --------------- Optimized Silhouette parameters --------------- #
 
     if not anomaly_detection:  # without anomaly detection
-        km_n_clusters = [1, 2]
-        fcm_n_clusters = [1, 2]
-        gmm_n_clusters = [1, 2]
-        hir_n_clusters = [1, 2]
-        spec_n_clusters = [1, 2]
+        km_n_clusters = [2]
+        fcm_n_clusters = [2]
+        gmm_n_clusters = [2]
+        hir_n_clusters = [2]
+        spec_n_clusters = [2]
         dbscan_params = [np.linspace(0.5, 5, 10),  # epsilons.
                          np.linspace(2, 11, 10)]  # min samples - have to be integers.
 
     else:  # with anomaly detection
-        km_n_clusters = [1, 3]
-        fcm_n_clusters = [1, 2, 3]
-        gmm_n_clusters = [1, 3]
-        hir_n_clusters = [1, 3]
-        spec_n_clusters = [1, 3]
+        km_n_clusters = [3]
+        fcm_n_clusters = [2, 3]
+        gmm_n_clusters = [3]
+        hir_n_clusters = [3]
+        spec_n_clusters = [3]
         dbscan_params = [np.linspace(0.5, 5, 10),  # epsilons.
                          np.linspace(2, 11, 10)]  # min samples - have to be integers.
 
     # --------------- Fowlkes Mallows scores on the optimized methods with Silhouette score --------------- #
 
     data.set_palette_color('viridis')
-    # apply_method(data.k_means, km_n_clusters)
-    # apply_method(data.fcm, fcm_n_clusters)
-    # apply_method(data.gmm, gmm_n_clusters)
-    # apply_method(data.hierarchical, hir_n_clusters)
-    # apply_method(data.spectral, spec_n_clusters)
-    # apply_dbscan(data.dbscan, dbscan_params)
+
+    if compute_fowlkes_mallows:
+        apply_method(data, data.k_means, km_n_clusters)
+        apply_method(data, data.fcm, fcm_n_clusters)
+        apply_method(data, data.gmm, gmm_n_clusters)
+        apply_method(data, data.hierarchical, hir_n_clusters)
+        apply_method(data, data.spectral, spec_n_clusters)
+        # # apply_dbscan(data.dbscan, dbscan_params)
 
     # --------------- True labels plot --------------- #
 
     data.set_palette_color('bright')
     clustering = []
     for target in data.targets():
-        clustering.append(data.target_plot(target))
+        clustering.append(data.target_plot(target, anomalies=True))
 
     # --------------- Final optimized methods --------------- #
 
@@ -112,23 +130,23 @@ def main():
     optimized_spec = None
     optimized_dbscan = None
 
-    if not anomaly_detection:  # without anomaly detection.
-        optimized_km = data.k_means(n_clusters=2)
-        optimized_fcm = data.fcm(n_clusters=2)
-        optimized_gmm = data.gmm(n_clusters=2)
-        optimized_hir = data.hierarchical(n_clusters=2)
-        optimized_spec = data.spectral(n_clusters=2)
-        # optimized_dbscan = data.dbscan(epsilon=70, min_samples=8)
-        pass
+    if perform_clustering:
 
-    else:  # with anomaly detection.
-        optimized_km = data.k_means(n_clusters=1)
-        optimized_fcm = data.fcm(n_clusters=1)
-        optimized_gmm = data.gmm(n_clusters=1)
-        optimized_hir = data.hierarchical(n_clusters=1)
-        optimized_spec = data.spectral(n_clusters=1)
-        # optimized_dbscan = data.dbscan(epsilon=70, min_samples=8)
-        pass
+        if not anomaly_detection:  # without anomaly detection.
+            optimized_km = data.k_means(n_clusters=2)
+            optimized_fcm = data.fcm(n_clusters=2)
+            optimized_gmm = data.gmm(n_clusters=2)
+            optimized_hir = data.hierarchical(n_clusters=2)
+            optimized_spec = data.spectral(n_clusters=2)
+            # optimized_dbscan = data.dbscan(epsilon=70, min_samples=8)
+
+        else:  # with anomaly detection.
+            optimized_km = data.k_means(n_clusters=3)
+            optimized_fcm = data.fcm(n_clusters=2)
+            optimized_gmm = data.gmm(n_clusters=3)
+            optimized_hir = data.hierarchical(n_clusters=3)
+            optimized_spec = data.spectral(n_clusters=3)
+            # optimized_dbscan = data.dbscan(epsilon=70, min_samples=8)
 
     optimized_clustering = [optimized_km, optimized_fcm, optimized_gmm, optimized_hir, optimized_spec, optimized_dbscan]
 

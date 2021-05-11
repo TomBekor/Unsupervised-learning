@@ -1,5 +1,23 @@
 K-Means Statistical Test Results:
 
+Null-Hypothesis: clustering with specific number of clusters have no affect, i.e. they all have the same Silhouette score.
+Alternative-Hypothesis: They all have different Silhouette score.
+Results: t-stat = 1731.748, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+Silhouette means:
+2 clusters Silhouette Score: 0.165
+3 clusters Silhouette Score: 0.138
+4 clusters Silhouette Score: 0.106
+5 clusters Silhouette Score: 0.101
+6 clusters Silhouette Score: 0.102
+7 clusters Silhouette Score: 0.100
+8 clusters Silhouette Score: 0.099
+9 clusters Silhouette Score: 0.097
+10 clusters Silhouette Score: 0.098
+
+
 The optimal number of clusters is: 2, with t-stat of: 66.997, and p-value of: 0.000.
 
 Testing history:

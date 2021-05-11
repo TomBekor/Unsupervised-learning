@@ -1,5 +1,23 @@
 FCM Statistical Test Results:
 
+Null-Hypothesis: clustering with specific number of clusters have no affect, i.e. they all have the same Silhouette score.
+Alternative-Hypothesis: They all have different Silhouette score.
+Results: t-stat = 64.345, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+Silhouette means:
+2 clusters Silhouette Score: 0.164
+3 clusters Silhouette Score: 0.086
+4 clusters Silhouette Score: 0.069
+5 clusters Silhouette Score: 0.059
+6 clusters Silhouette Score: 0.034
+7 clusters Silhouette Score: -0.00
+8 clusters Silhouette Score: -0.09
+9 clusters Silhouette Score: -0.09
+10 clusters Silhouette Score: -0.07
+
+
 The optimal number of clusters is: 2, with t-stat of: 28.732, and p-value of: 0.000.
 
 Testing history:

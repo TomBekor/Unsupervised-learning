@@ -1,5 +1,23 @@
 GMM Statistical Test Results:
 
+Null-Hypothesis: clustering with specific number of clusters have no affect, i.e. they all have the same Silhouette score.
+Alternative-Hypothesis: They all have different Silhouette score.
+Results: t-stat = 4317.478, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+Silhouette means:
+2 clusters Silhouette Score: 0.553
+3 clusters Silhouette Score: 0.506
+4 clusters Silhouette Score: 0.404
+5 clusters Silhouette Score: 0.310
+6 clusters Silhouette Score: 0.267
+7 clusters Silhouette Score: 0.264
+8 clusters Silhouette Score: 0.302
+9 clusters Silhouette Score: 0.274
+10 clusters Silhouette Score: 0.268
+
+
 The optimal number of clusters is: 2, with t-stat of: 137.139, and p-value of: 0.000.
 
 Testing history:

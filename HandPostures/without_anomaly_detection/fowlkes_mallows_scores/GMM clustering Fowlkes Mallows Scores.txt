@@ -1,0 +1,5 @@
+On Class label:
+Fowlkes Mallows on 3 clusters: 0.388
+Fowlkes Mallows on 6 clusters: 0.314
+
+

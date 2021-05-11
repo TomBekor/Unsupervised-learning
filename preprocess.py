@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 
 def hand_postures_preprocess(path, sample, anomaly_detection):
     data = pd.read_csv(path, na_values='?').drop(0)
-    target = pd.DataFrame(data['Class'])
+    target = pd.DataFrame(data['Class'], columns=['Class'])
     data.pop('Class')
     data.pop('User')
     drop = ['X7', 'Y7', 'Z7', 'X8', 'Y8', 'Z8', 'X9', 'Y9', 'Z9', 'X10', 'Y10', 'Z10', 'X11', 'Y11', 'Z11']

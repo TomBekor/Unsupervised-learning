@@ -1,0 +1,4 @@
+Starting dimension reduction using PCA...done.
+from 8 dimensions to 2 pca components, variance ratio:
+[0.41871878 0.35418129]
+total variance:77%

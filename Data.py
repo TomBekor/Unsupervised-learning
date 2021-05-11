@@ -31,6 +31,8 @@ class Data:
         self.data_dir = None
         self.colors = ['b']
         self.palette = 'bright'
+        self.plots_dir = None
+        self.figsize = None
 
     def targets(self):
         return self.target.columns.tolist()
@@ -41,8 +43,22 @@ class Data:
     def set_palette_color(self, palette: str):
         self.palette = palette
 
-    def preprocess(self, name: str, path: str, sample: int, anomaly_detection: bool, data_dir: str):
+    def get_figsize(self):
+        return self.figsize
+
+    def get_plots_dir(self):
+        return self.plots_dir
+
+    def get_data_dir(self):
+        return self.data_dir
+
+    def preprocess(self, name: str, path: str, sample: int, anomaly_detection: bool,
+                   data_dir: str, plots_dir: str, figsize):
         self.name = name
+        self.plots_dir = plots_dir
+        self.figsize = figsize
+        if not os.path.exists(plots_dir):
+            os.makedirs(plots_dir, exist_ok=True)
         if self.name == 'HandPostures':
             self.data, self.target, self.data_anomalies, self.target_anomalies = \
                 preprocess.hand_postures_preprocess(path, sample, anomaly_detection)
@@ -53,9 +69,13 @@ class Data:
 
     def dimension_reduction(self, method: str, n_components: float, visualize: bool,
                             read_from_csv: bool = False, write_to_csv: bool = False):
+        text = []
         csv_dir = self.data_dir + 'DataCsv/'
         if not os.path.exists(csv_dir):
             os.makedirs(csv_dir, exist_ok=True)
+        info_dir = csv_dir + 'Info/'
+        if not os.path.exists(info_dir):
+            os.makedirs(info_dir, exist_ok=True)
         if visualize:
             file_name = csv_dir + method + '_' + 'visualized' + '_data.csv'
         else:
@@ -64,16 +84,27 @@ class Data:
             result = pd.read_csv(file_name)
         else:
             if method == 'PCA':
+
                 print('Starting dimension reduction using PCA...', end=' ')
+                text.append('Starting dimension reduction using PCA...done.')
+
                 pca = PCA(n_components=n_components, svd_solver='full')
                 principal_components = pca.fit_transform(self.data)
                 result = pd.DataFrame(data=principal_components)
-                print('done')
+
+                print('done.')
                 print('from', len(self.data.columns), 'dimensions to', pca.n_components_, 'pca components, variance ratio:')
                 print(pca.explained_variance_ratio_)
                 print('total variance:', str(int((sum(pca.explained_variance_ratio_) * 100))) + '%')
+
+                text.append('from %d dimensions to %d pca components, variance ratio:' % (len(self.data.columns), pca.n_components_))
+                text.append(str(pca.explained_variance_ratio_))
+                text.append('total variance:' + str(int((sum(pca.explained_variance_ratio_) * 100))) + '%')
+
             elif method == 'TSNE':
                 print('Starting dimension reduction using TSNE...', end=' ')
+                text.append('Starting dimension reduction using TSNE... done.')
+
                 tsne = TSNE(n_components=n_components)
                 embedded_data = tsne.fit_transform(self.reduced_data)
                 result = pd.DataFrame(data=embedded_data, columns=['dim 1', 'dim 2'])
@@ -87,10 +118,14 @@ class Data:
             self.reduced_data = result
         if write_to_csv:
             result.to_csv(file_name, index=False)
+            with open(info_dir + method + '-' + str(n_components), 'w+') as info_file:
+                for row in text:
+                    info_file.write(row + '\n')
+            info_file.close()
 
     # -------------------------------- clustering -------------------------------- #
 
-    def target_plot(self, label: str):
+    def target_plot(self, label: str, anomalies=False):
         labels = self.target[label].values
         n_labels = max(pd.unique(labels).max(), len(pd.unique(labels))) + 1
         return Clustering(labels=labels, n_clusters=n_labels, title=label.capitalize() + ' True Labels', palette=self.palette)
@@ -106,8 +141,8 @@ class Data:
         x = np.array(list1)
         return np.unique(x)
 
-    def plot_clusters(self, clustering: Clustering, title_fs=14, label_fs=10, ticks_fs=8):
-        plt.figure()
+    def plot_clusters(self, clustering: Clustering, title_fs=14, label_fs=12, ticks_fs=12):
+        plt.figure(figsize=self.figsize)
         labels = clustering.get_labels()
         n_clusters = clustering.get_n_clusters()
         title = clustering.get_title()
@@ -116,13 +151,14 @@ class Data:
         plt.scatter(self.visualized_data.values[:, 0], self.visualized_data.values[:, 1],
                     s=30, c=[self.cluster_color(label) for label in labels], alpha=0.5)
 
-        # plt.scatter(self.visualized_data.values[:, 0], self.visualized_data.values[:, 1],
-        #             s=30, hue=labels, alpha=0.5)
-
         clusters_ax = plt.gca()
         clusters_ax.set_title(title, fontsize=title_fs)
         clusters_ax.set_xlabel('dim1', fontsize=label_fs)
         clusters_ax.set_ylabel('dim2', fontsize=label_fs)
+        for tick in clusters_ax.xaxis.get_major_ticks() + clusters_ax.yaxis.get_major_ticks():
+            tick.label.set_fontsize(ticks_fs)
+
+        plt.savefig(self.plots_dir + title)
 
     # ------------- optimization ------------- #
 
@@ -158,7 +194,7 @@ class Data:
 
         # plot optimization:
         def plot_opt(y, opt_title: str, y_label: str):
-            plt.figure()
+            plt.figure(figsize=self.figsize)
             plt.plot(clusters, y, '-o')
             ax = plt.gca()
             ax.set_title(label=opt_title)
@@ -167,6 +203,8 @@ class Data:
             ax.set_xticks(range(2, max_clusters, 2))
             for tick in ax.xaxis.get_major_ticks() + ax.yaxis.get_major_ticks():
                 tick.label.set_fontsize(ticks_fs)
+
+            plt.savefig(self.plots_dir + title)
 
         # plot silhouette:
         if 'Silhouette' in plots:
@@ -268,15 +306,17 @@ class Data:
                           fowlkes_mallows=fowlkes_mallows)
 
 
-def apply_method(method: Callable[[int], Clustering], n_clusters: list):
+def apply_method(data: Data, method: Callable[[int], Clustering], n_clusters: list):
     clustering = []
     for n in n_clusters:
         clustering.append(method(n))
-    fowlkes_mallows_plot(clustering, n_clusters, x_title='number of clusters')
+    fowlkes_mallows_plot(clustering, n_clusters, x_title='number of clusters',
+                         figsize=data.get_figsize(), plots_dir=data.get_plots_dir(),
+                         fm_dir=data.get_data_dir() + 'fowlkes_mallows_scores/')
     return clustering
 
 
-def fowlkes_mallows_plot(clustering, labels, x_title, x_rotation=0):
+def fowlkes_mallows_plot(clustering, labels, x_title, x_rotation=0, figsize=(10, 7), plots_dir='', fm_dir=''):
     title = clustering[0].get_title().split(' ')[0] + ' clustering Fowlkes Mallows Scores'
     all_fowlkes_mallows = {}
     for clust in clustering:
@@ -287,10 +327,21 @@ def fowlkes_mallows_plot(clustering, labels, x_title, x_rotation=0):
             else:
                 all_fowlkes_mallows[cat].append(clust_fowlkes_mallows[cat])
     fowlkes_mallows = pd.DataFrame(all_fowlkes_mallows)
-    ax = fowlkes_mallows.plot.bar(title=title)
+
+    if not os.path.isdir(fm_dir):
+        os.mkdir(fm_dir)
+    with open(fm_dir + title + '.txt', 'w+') as fm_file:
+        for cat in all_fowlkes_mallows.keys():
+            fm_file.write('On ' + cat + ' label:\n')
+            for i in range(len(labels)):
+                fm_file.write("Fowlkes Mallows on %d clusters: %0.3f\n" % (labels[i], all_fowlkes_mallows[cat][i]))
+            fm_file.write('\n\n')
+
+    ax = fowlkes_mallows.plot.bar(title=title, figsize=figsize)
     ax.set_xlabel(x_title)
     ax.set_ylabel('Fowlkes Mallows Score')
     ax.set_xticklabels(labels, rotation=x_rotation)
+    plt.savefig(plots_dir + title)
 
 
 def apply_dbscan(method: Callable[[float, int], Clustering], dbscan_params):

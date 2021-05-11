@@ -1,5 +1,23 @@
 Agglomerative Hierarchical Clustering Statistical Test Results:
 
+Null-Hypothesis: clustering with specific number of clusters have no affect, i.e. they all have the same Silhouette score.
+Alternative-Hypothesis: They all have different Silhouette score.
+Results: t-stat = 1168.316, p-value = 0.000.
+The Null-Hypothesis rejected and it proves that the Alternative-Hypothesis is correct and statistically significant.
+
+
+Silhouette means:
+2 clusters Silhouette Score: 0.117
+3 clusters Silhouette Score: 0.114
+4 clusters Silhouette Score: 0.106
+5 clusters Silhouette Score: 0.070
+6 clusters Silhouette Score: 0.068
+7 clusters Silhouette Score: 0.068
+8 clusters Silhouette Score: 0.058
+9 clusters Silhouette Score: 0.062
+10 clusters Silhouette Score: 0.062
+
+
 The optimal number of clusters is: 2, with t-stat of: 49.406, and p-value of: 0.000.
 
 Testing history:
